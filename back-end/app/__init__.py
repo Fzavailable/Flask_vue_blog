@@ -1,7 +1,14 @@
+import os
 from flask import Flask
-from config import Config
 from flask_cors import CORS
+from config import Config
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
+# Flask-SQLAlchemy plugin
+db = SQLAlchemy()
+# Flask-Migrate plugin
+migrate = Migrate()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -9,9 +16,15 @@ def create_app(config_class=Config):
 
     # enable CORS
     CORS(app)
+    # Init Flask-SQLAlchemy
+    db.init_app(app)
+    # Init Flask-Migrate
+    migrate.init_app(app, db)
 
     # 注册 blueprint
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
 
     return app
+
+from app import models

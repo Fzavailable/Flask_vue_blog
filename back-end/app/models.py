@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from flask import url_for
 
+
 class PaginatedAPIMixin(object):
     @staticmethod
     def to_collection_dict(query, page, per_page, endpoint, **kwargs):
@@ -29,7 +30,8 @@ class PaginatedAPIMixin(object):
         }
         return data
 
-class User(PaginatedAPIMixin,db.Model):
+
+class User(PaginatedAPIMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -43,7 +45,6 @@ class User(PaginatedAPIMixin,db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -66,8 +67,6 @@ class User(PaginatedAPIMixin,db.Model):
                 setattr(self, field, data[field])
         if new_user and 'password' in data:
             self.set_password(data['password'])
-
-
 
     def get_token(self, expires_in=3600):
         now = datetime.utcnow()

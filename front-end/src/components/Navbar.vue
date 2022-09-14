@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light" style="margin-bottom: 20px;">
       <router-link to="/" class="navbar-brand">
         <img src="../assets/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-          Blog
+          MadBlog
       </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -15,9 +15,12 @@
           <li class="nav-item active">
             <router-link to="/" class="nav-link">Home <span class="sr-only">(current)</span></router-link>
           </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="#">Explore</a>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/ping" class="nav-link">Ping</router-link>-->
+<!--          </li>-->
+<!--          <li class="nav-item">-->
+<!--            <a class="nav-link disabled" href="#">Explore</a>-->
+<!--          </li>-->
         </ul>
 
 <!--        <form v-if="sharedState.is_authenticated" class="form-inline navbar-left mr-auto">-->
@@ -49,7 +52,7 @@
 </template>
 
 <script>
-import store from '../store.js'
+import store from '../store'
 
 export default {
   name: 'Navbar',  //this is the name of the component

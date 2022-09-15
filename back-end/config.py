@@ -18,3 +18,5 @@ class Config(object):
                                                                            PORT, DBNAME)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    POSTS_PER_PAGE = 10
+    USERS_PER_PAGE = 10

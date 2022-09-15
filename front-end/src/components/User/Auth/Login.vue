@@ -28,12 +28,13 @@
 </template>
 
 <script>
-import store from '../store'
+import store from '../../../store'
 
 export default {
   name: 'Login',  //this is the name of the component
   data () {
     return {
+      sharedState: store.state,
       loginForm: {
         username: '',
         password: '',
@@ -78,8 +79,7 @@ export default {
           window.localStorage.setItem('madblog-token', response.data.token)
           store.loginAction()
 
-          const name = JSON.parse(atob(response.data.token.split('.')[1])).name
-          this.$toasted.success(`Welcome ${name}!`, { icon: 'fingerprint' })
+          this.$toasted.success(`Welcome ${this.sharedState.user_name}!`, { icon: 'fingerprint' })
 
           if (typeof this.$route.query.redirect == 'undefined') {
             this.$router.push('/')
@@ -89,6 +89,8 @@ export default {
         })
         .catch((error) => {
           // handle error
+          console.log(error)
+          
           if (error.response.status == 401) {
             this.loginForm.usernameError = 'Invalid username or password.'
             this.loginForm.passwordError = 'Invalid username or password.'

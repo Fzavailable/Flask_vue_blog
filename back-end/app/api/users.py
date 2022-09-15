@@ -192,7 +192,8 @@ def get_followers(id):
         res = db.engine.execute(
             "select * from followers where follower_id={} and followed_id={}".
             format(item['id'], user.id))
-        item['timestamp'] = datetime.strptime(
+
+        item['timestamp'] = datetime.strftime(
             list(res)[0][2], '%Y-%m-%d %H:%M:%S.%f')
     return jsonify(data)
 

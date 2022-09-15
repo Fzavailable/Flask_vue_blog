@@ -9,7 +9,7 @@ import axios from './http'
 import moment from 'moment'
 // Import Bootstrap css and js files
 import 'bootstrap/dist/css/bootstrap.min.css'
-//import 'bootstrap'
+import 'bootstrap'
 // 字体图标
 import './assets/icon-line/css/simple-line-icons.css'
 import './assets/icon-material/material-icons.css'

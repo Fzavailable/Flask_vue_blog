@@ -496,3 +496,38 @@ def get_user_notifications(id):
     notifications = user.notifications.filter(
         Notification.timestamp > since).order_by(Notification.timestamp.asc())
     return jsonify([n.to_dict() for n in notifications])
+
+
+
+@bp.route('/block/<int:id>', methods=['GET'])
+@token_auth.login_required
+def block(id):
+    '''开始拉黑一个用户'''
+    user = User.query.get_or_404(id)
+    if g.current_user == user:
+        return bad_request('You cannot block yourself.')
+    if g.current_user.is_blocking(user):
+        return bad_request('You have already blocked that user.')
+    g.current_user.block(user)
+    db.session.commit()
+    return jsonify({
+        'status': 'success',
+        'message': 'You are now blocking %s.' % (user.name if user.name else user.username)
+    })
+
+
+@bp.route('/unblock/<int:id>', methods=['GET'])
+@token_auth.login_required
+def unblock(id):
+    '''取消拉黑一个用户'''
+    user = User.query.get_or_404(id)
+    if g.current_user == user:
+        return bad_request('You cannot unblock yourself.')
+    if not g.current_user.is_blocking(user):
+        return bad_request('You are not blocking this user.')
+    g.current_user.unblock(user)
+    db.session.commit()
+    return jsonify({
+        'status': 'success',
+        'message': 'You are not blocking %s anymore.' % (user.name if user.name else user.username)
+    })

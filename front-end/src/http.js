@@ -5,7 +5,12 @@ import store from './store'
 
 
 // 基础配置
-axios.defaults.baseURL = 'http://localhost:5000'
+if (process.env.NODE_ENV === 'production') {
+  axios.defaults.baseURL = 'http://0.0.0.0:5000';
+} else {
+  axios.defaults.baseURL = 'http://127.0.0.1:5000';
+}
+// axios.defaults.baseURL = 'http://127.0.0.1:5000'
 // axios.defaults.timeout = 5000  // 超时时间（毫秒）
 // axios.defaults.retry = 2  // 重试次数
 // axios.defaults.retryDelay = 100  // 重试之间的间隔时间（毫秒）
@@ -56,7 +61,7 @@ axios.interceptors.response.use(function (response) {
         Vue.toasted.error('404: Not Found', { icon: 'fingerprint' })
         router.back()
         break
-      
+
       case 500:  // 根本拿不到 500 错误，因为 CORs 不会过来
         Vue.toasted.error('500: Oops... INTERNAL SERVER ERROR', { icon: 'fingerprint' })
         router.back()

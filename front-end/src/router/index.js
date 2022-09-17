@@ -4,9 +4,12 @@ import Router from 'vue-router'
 import VueScrollTo from 'vue-scrollto'
 // 首页
 import Home from '@/components/Home'
-// 用户认证：注册与登录
+// 用户认证：注册、登录、验证账户、重置密码请求、重置密码
 import Register from '@/components/Auth/Register'
 import Login from '@/components/Auth/Login'
+import Unconfirmed from '@/components/Auth/Unconfirmed'
+import ResetPasswordRequest from '@/components/Auth/ResetPasswordRequest'
+import ResetPassword from '@/components/Auth/ResetPassword'
 // 用户个人主页
 import User from '@/components/Profile/User'
 import Overview from '@/components/Profile/Overview'
@@ -76,7 +79,7 @@ const scrollBehavior = (to, from, savedPosition) => {
 }
 
 const router = new Router({
-  mode: 'history',  // 文章详情页 TOC 的锚点以数字开头，会被报错不合法: [Vue warn]: Error in nextTick: "SyntaxError: Failed to execute 'querySelector' on 'Document': '#13-git-clone' is not a valid selector."
+  // mode: 'history',  // 文章详情页 TOC 的锚点以数字开头，会被报错不合法: [Vue warn]: Error in nextTick: "SyntaxError: Failed to execute 'querySelector' on 'Document': '#13-git-clone' is not a valid selector."
   scrollBehavior,  // 不用这个，在需要跳转的改用 vue-scrollto
   routes: [
     {
@@ -95,6 +98,24 @@ const router = new Router({
       component: Register
     },
     {
+      path: '/unconfirmed',
+      name: 'Unconfirmed',
+      component: Unconfirmed,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/reset-password-request',
+      name: 'ResetPasswordRequest',
+      component: ResetPasswordRequest
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: ResetPassword
+    },
+    {
       path: '/user/:id',
       // name: 'User',
       component: User,
@@ -104,7 +125,7 @@ const router = new Router({
         // 注意： 要有默认子路由，父路由不能指定 name
         { path: '', component: Overview },
         { path: 'overview', name: 'UserOverview', component: Overview },
-				
+
         // Followers will be rendered inside User's <router-view>
         // when /user/:id/followers is matched
         { path: 'followers', name: 'UserFollowers', component: Followers },
@@ -145,8 +166,8 @@ const router = new Router({
         { path: 'posts', name: 'PostsResource', component: Posts },
         { path: 'liked-posts', name: 'LikedPostsResource', component: LikedPostsResource },
         { path: 'comments', name: 'CommentsResource', component: CommentsResource },
-        { 
-          path: 'messages', 
+        {
+          path: 'messages',
           component: MessagesIndexResource,
           children: [
             // 默认匹配，你给哪些人发送过私信
@@ -167,8 +188,8 @@ const router = new Router({
       children: [
         { path: '', component: RecivedComments },
         { path: 'comments', name: 'RecivedComments', component: RecivedComments },
-        { 
-          path: 'messages', 
+        {
+          path: 'messages',
           component: MessagesIndex,
           children: [
             // 默认匹配，哪些人给你发送过私信
@@ -202,18 +223,36 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   const token = window.localStorage.getItem('madblog-token')
+  if (token) {
+    var payload = JSON.parse(atob(token.split('.')[1]))
+  }
+
   if (to.matched.some(record => record.meta.requiresAuth) && (!token || token === null)) {
+    // 1. 用户未登录，但想访问需要认证的相关路由时，跳转到 登录 页
     Vue.toasted.show('Please log in to access this page.', { icon: 'fingerprint' })
     next({
       path: '/login',
       query: { redirect: to.fullPath }
     })
-  } else if (token && to.name == 'Login') {
-    // 用户已登录，但又去访问登录页面时不让他过去
+  } else if (token && !payload.confirmed && to.name != 'Unconfirmed') {
+    // 2. 用户刚注册，但是还没确认邮箱地址时，全部跳转到 认证提示 页面
+    Vue.toasted.show('Please confirm your accout to access this page.', { icon: 'fingerprint' })
+    next({
+      path: '/unconfirmed',
+      query: { redirect: to.fullPath }
+    })
+  } else if (token && payload.confirmed && to.name == 'Unconfirmed') {
+    // 3. 用户账户已确认，但又去访问 认证提示 页面时不让他过去
+    next({
+      path: '/'
+    })
+  } else if (token && (to.name == 'Login' || to.name == 'Register' || to.name == 'ResetPasswordRequest' || to.name == 'ResetPassword')) {
+    // 4. 用户已登录，但又去访问 登录/注册/请求重置密码/重置密码 页面时不让他过去
     next({
       path: from.fullPath
     })
-  } else if (to.matched.length === 0) {  // 要前往的路由不存在时
+  } else if (to.matched.length === 0) {
+    // 5. 要前往的路由不存在时
     Vue.toasted.error('404: Not Found', { icon: 'fingerprint' })
     if (from.name) {
       next({
@@ -225,6 +264,7 @@ router.beforeEach((to, from, next) => {
       })
     }
   } else {
+    // 6. 正常路由出口
     next()
   }
 })

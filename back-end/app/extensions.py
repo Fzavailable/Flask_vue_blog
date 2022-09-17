@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ''' Create instance of these flask extensions '''
+from flask_babel import Babel
 from flask_cors import CORS
+from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import MetaData
 
 # Flask-Cors plugin
 cors = CORS()
+# Flask-Mail plugin
+mail = Mail()
+# Flask-Babel plugin
+babel = Babel()
 # Flask-SQLAlchemy plugin
 naming_convention = {
     "ix": 'ix_%(column_0_label)s',

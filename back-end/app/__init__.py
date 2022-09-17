@@ -1,6 +1,7 @@
 from flask import Flask
 from app.api import bp as api_bp
-from app.extensions import cors, db, migrate
+from flask import Flask, request
+from app.extensions import cors, db, migrate,mail, babel
 
 
 def create_app(config_class=None):
@@ -40,7 +41,8 @@ def configure_extensions(app):
     db.init_app(app)
     # Init Flask-Migrate
     migrate.init_app(app, db)
-
+    # Init Flask-Mail
+    mail.init_app(app)
 
 def configure_before_handlers(app):
     '''Configures the before request handlers'''
@@ -55,3 +57,11 @@ def configure_after_handlers(app):
 def configure_errorhandlers(app):
     '''Configures the error handlers'''
     pass
+
+    # Init Flask-Babel
+    babel.init_app(app)
+
+    @babel.localeselector
+    def get_locale():
+        # return 'zh'  # 这样设置的话，所有用户永远显示中文
+        return request.accept_languages.best_match(app.config['LANGUAGES'])

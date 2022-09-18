@@ -2,7 +2,7 @@
   <div class="container">
 
     <!-- Modal: Edit Post -->
-    <div class="modal fade" id="editPostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div data-backdrop="static" class="modal fade" id="editPostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -12,7 +12,7 @@
             </button>
           </div>
           <div class="modal-body">
-          
+
             <form id="editPostForm" @submit.prevent="onSubmitUpdatePost" @reset.prevent="onResetUpdatePost">
               <div class="form-group" v-bind:class="{'u-has-error-v1': editPostForm.titleError}">
                 <input type="text" v-model="editPostForm.title" class="form-control" id="editPostFormTitle" placeholder="标题">
@@ -28,13 +28,13 @@
               <button type="reset" class="btn btn-secondary">Cancel</button>
               <button type="submit" class="btn btn-primary">Update</button>
             </form>
-    
+
           </div>
         </div>
       </div>
     </div>
 
-    <form id="addPostForm" v-if="sharedState.is_authenticated" @submit.prevent="onSubmitAddPost" class="g-mb-40">
+    <form id="addPostForm" v-if="sharedState.is_authenticated && sharedState.user_perms.includes('write')" @submit.prevent="onSubmitAddPost" class="g-mb-40">
       <div class="form-group" v-bind:class="{'u-has-error-v1': postForm.titleError}">
         <input type="text" v-model="postForm.title" class="form-control" id="postFormTitle" placeholder="标题">
         <small class="form-control-feedback" v-show="postForm.titleError">{{ postForm.titleError }}</small>
@@ -55,7 +55,7 @@
         <h3 class="h6 mb-0">
           <i class="icon-bubbles g-pos-rel g-top-1 g-mr-5"></i> All Posts <small v-if="posts">(共 {{ posts._meta.total_items }} 篇, {{ posts._meta.total_pages }} 页)</small>
         </h3>
-        
+
         <div class="dropdown g-mb-10 g-mb-0--md">
           <span class="d-block g-color-primary--hover g-cursor-pointer g-mr-minus-5 g-pa-5" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="icon-options-vertical g-pos-rel g-top-1"></i>
@@ -70,13 +70,13 @@
             <router-link v-bind:to="{ path: $route.path, query: { page: 1, per_page: 10 }}" class="dropdown-item g-px-10">
               <i class="icon-wallet g-font-size-12 g-color-gray-dark-v5 g-mr-5"></i> 每页 10 篇
             </router-link>
-            
+
             <div class="dropdown-divider"></div>
-            
+
             <router-link v-bind:to="{ path: $route.path, query: { page: 1, per_page: 20 }}" class="dropdown-item g-px-10">
               <i class="icon-fire g-font-size-12 g-color-gray-dark-v5 g-mr-5"></i> 每页 20 篇
             </router-link>
-            
+
           </div>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default {
       if (typeof this.$route.query.per_page != 'undefined') {
         per_page = this.$route.query.per_page
       }
-      
+
       const path = `/api/posts/?page=${page}&per_page=${per_page}`
       this.$axios.get(path)
         .then((response) => {
@@ -212,8 +212,15 @@ export default {
         })
         .catch((error) => {
           // handle error
-          console.log(error.response.data)
-          this.$toasted.error(error.response.data.message, { icon: 'fingerprint' })
+          for (var field in error.response.data.message) {
+            if (field == 'title') {
+              this.postForm.titleError = error.response.data.message[field]
+            } else if (field == 'body') {
+              this.postForm.bodyError = error.response.data.message[field]
+            } else {
+              this.$toasted.error(error.response.data.message[field], { icon: 'fingerprint' })
+            }
+          }
         })
     },
     onEditPost (post) {
@@ -254,9 +261,6 @@ export default {
         return false
       }
 
-      // 先隐藏 Modal
-      $('#editPostModal').modal('hide')
-
       const path = `/api/posts/${this.editPostForm.id}`
       const payload = {
         title: this.editPostForm.title,
@@ -265,6 +269,9 @@ export default {
       }
       this.$axios.put(path, payload)
         .then((response) => {
+          // 先隐藏 Modal
+          $('#editPostModal').modal('hide')
+
           // handle success
           this.getPosts()
           this.$toasted.success('Successed update the post.', { icon: 'fingerprint' })
@@ -274,8 +281,22 @@ export default {
         })
         .catch((error) => {
           // handle error
-          console.log(error.response.data)
-          this.$toasted.error(error.response.data.message, { icon: 'fingerprint' })
+          for (var field in error.response.data.message) {
+            if (field == 'title') {
+              this.editPostForm.titleError = error.response.data.message[field]
+              // boostrap4 modal依赖jQuery，不兼容 vue.js 的双向绑定。所以要手动添加警示样式和错误提示
+              $('#editPostFormTitle').closest('.form-group').addClass('u-has-error-v1')  // Bootstrap 4
+              $('#editPostFormTitle').after('<small class="form-control-feedback">' + this.editPostForm.titleError + '</small>')
+            } else if (field == 'body') {
+              this.editPostForm.bodyError = error.response.data.message[field]
+              // boostrap4 modal依赖jQuery，不兼容 vue.js 的双向绑定。所以要手动添加警示样式和错误提示
+              // 给 bootstrap-markdown 编辑器内容添加警示样式，而不是添加到 #postFormBody 上
+              $('#editPostForm .md-editor').closest('.form-group').addClass('u-has-error-v1')  // Bootstrap 4
+              $('#editPostForm .md-editor').after('<small class="form-control-feedback">' + this.editPostForm.bodyError + '</small>')
+            } else {
+              this.$toasted.error(error.response.data.message[field], { icon: 'fingerprint' })
+            }
+          }
         })
     },
     onResetUpdatePost () {

@@ -756,3 +756,21 @@ class Role(PaginatedAPIMixin, db.Model):
         # 过滤掉没有权限，注意不能用 for 循环，因为遍历列表时删除元素可能结果并不是你想要的，参考: https://segmentfault.com/a/1190000007214571
         new_p = filter(lambda x: self.has_permission(x[0]), p)
         return ','.join([x[1] for x in new_p])  # 用逗号拼接成str
+
+    def to_dict(self):
+        data = {
+            'id': self.id,
+            'slug': self.slug,
+            'name': self.name,
+            'default': self.default,
+            'permissions': self.permissions,
+            '_links': {
+                'self': url_for('api.get_role', id=self.id)
+            }
+        }
+        return data
+
+    def from_dict(self, data):
+        for field in ['slug', 'name', 'permissions']:
+            if field in data:
+                setattr(self, field, data[field])

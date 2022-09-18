@@ -144,7 +144,7 @@ class User(PaginatedAPIMixin, db.Model):
     def avatar(self, size):
         '''用户头像'''
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
+        return 'https://gravatar.loli.net/avatar/{}?d=identicon&s={}'.format(digest, size)
 
     def to_dict(self, include_email=False):
         data = {

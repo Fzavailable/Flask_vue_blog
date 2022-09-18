@@ -5,9 +5,8 @@
         <div class="navbar-brand">
           <router-link to="/" class="g-text-underline--none--hover">
             <img src="../../assets/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
-            Design by
+            Blog
           </router-link>
-          <a href="http://www.madmalls.com" class="g-text-underline--none--hover">Madman</a>
         </div>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,18 +19,13 @@
               <router-link to="/" class="nav-link">Home <span class="sr-only">(current)</span></router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/ping" class="nav-link">Ping</router-link>
+<!--              <router-link to="/ping" class="nav-link">Ping</router-link>-->
             </li>
             <li class="nav-item" v-if="sharedState.is_authenticated && sharedState.user_perms.includes('admin')">
               <router-link to="/admin" class="nav-link">Admin</router-link>
             </li>
           </ul>
 
-          <form v-if="sharedState.is_authenticated" class="form-inline navbar-left mr-auto">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search">
-            <!-- 暂时先禁止提交，后续实现搜索再改回 type="submit" -->
-            <button class="btn btn-outline-success my-2 my-sm-0" type="button">Search</button>
-          </form>
 
           <ul v-if="sharedState.is_authenticated" class="nav navbar-nav navbar-right">
             <li class="nav-item g-mr-20">

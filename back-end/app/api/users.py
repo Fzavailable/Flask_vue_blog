@@ -19,13 +19,14 @@ def create_user():
         return bad_request('You must post JSON data.')
 
     message = {}
-    if 'username' not in data or not data.get('username', None).strip():
-        message['username'] = 'Please provide a valid username.'
+    patternname = '^[a-zA-Z0-9]$'
+    if 'username' not in data or not re.match(patternname, data.get('username', None).strip()):
+        message['username'] = 'Only number and letter combinations are supported.'
     pattern = '^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
     if 'email' not in data or not re.match(pattern, data.get('email', None)):
         message['email'] = 'Please provide a valid email address.'
-    if 'password' not in data or not data.get('password', None).strip():
-        message['password'] = 'Please provide a valid password.'
+    if 'password' not in data or not re.match(patternname, data.get('password', None).strip()):
+        message['password'] = 'Only number and letter combinations are supported.'
 
     if User.query.filter_by(username=data.get('username', None)).first():
         message['username'] = 'Please use a different username.'
@@ -111,22 +112,22 @@ def update_user(id):
     user = User.query.get_or_404(id)
     data = request.get_json()
     if not data:
-        return bad_request('You must post JSON data.')
+        return bad_request(_('You must post JSON data.'))
 
     message = {}
     if 'username' in data and not data.get('username', None).strip():
-        message['username'] = 'Please provide a valid username.'
+        message['username'] = _('Please provide a valid username.')
 
     pattern = '^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
     if 'email' in data and not re.match(pattern, data.get('email', None)):
-        message['email'] = 'Please provide a valid email address.'
+        message['email'] = _('Please provide a valid email address.')
 
     if 'username' in data and data['username'] != user.username and \
             User.query.filter_by(username=data['username']).first():
-        message['username'] = 'Please use a different username.'
+        message['username'] = _('Please use a different username.')
     if 'email' in data and data['email'] != user.email and \
             User.query.filter_by(email=data['email']).first():
-        message['email'] = 'Please use a different email address.'
+        message['email'] = _('Please use a different email address.')
 
     if message:
         return bad_request(message)

@@ -1547,6 +1547,21 @@ figure {
 .g-right-15{right:1.07143rem!important;}
 .g-cursor-pointer{cursor:pointer;}
 .g-color-white--hover:hover{color:#fff!important;}
+.g-cktop-0{top:10;}
+.g-cktop-5{top:4;}
+.g-ckleft-0{left:0;}
+.g-ckright-0{right:0;}
+.g-wordleft-0{left:10;}
+
+
+.form-ck-inline {
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex-align: center;
+  align-items: center;
+  padding-left: 0;
+  margin-right: 0.75rem;
+}
 
 /* Color Blue */
 .g-color-blue {

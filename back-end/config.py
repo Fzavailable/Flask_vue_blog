@@ -22,6 +22,7 @@ class Config(object):
     USERS_PER_PAGE = 10
     COMMENTS_PER_PAGE = 10
     MESSAGES_PER_PAGE = 10
+    ADMINS = ['836282264@qq.com']  # 管理员的邮箱地址
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'false').lower() in ['true', 'on', '1']

@@ -16,12 +16,12 @@
         <label for="permissions">Permissions</label>
         <div>
           <!-- Inline Checkboxes -->
-          <label v-for="(perm, index) in perms" v-bind:key="index" class="form-check-inline u-check g-pl-25">
-            <input class="g-hidden-xs-up g-pos-abs g-top-0 g-left-0" type="checkbox" v-bind:id="perm.dec" v-bind:value="perm.dec" v-model="checkPerms">
+          <label v-for="(perm, index) in perms" v-bind:key="index" class="form-ck-inline ">
+            <input class="g-hidden-xs-up g-pos-abs g-cktop-0 g-left-0" type="checkbox" v-bind:id="perm.dec" v-bind:value="perm.dec" v-model="checkPerms">
             <div class="u-check-icon-checkbox-v6 g-absolute-centered--y g-left-0">
-              <i class="fa" data-check-icon=""></i>
+                <i class="fa" data-check-icon=""></i>
             </div>
-            {{ perm.name }}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ perm.name }}
           </label>
           <!-- End Inline Checkboxes -->
         </div>
